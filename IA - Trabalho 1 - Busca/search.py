@@ -101,22 +101,45 @@ def depthFirstSearch(problem):
         currentState = stackItem[0]
         movesToState = stackItem[1]
 
-        stateSet.add(currentState)
+        if currentState not in stateSet:
 
-        if(problem.isGoalState(currentState)):
-            return movesToState
+            stateSet.add(currentState)
 
-        # sucessors returns a set with (state, direction to sucessor, cost to move)
-        for sucessor in problem.getSuccessors(currentState):
-            if sucessor[0] not in stateSet:
-                stack.push([sucessor[0], movesToState + [sucessor[1]]])
+            if(problem.isGoalState(currentState)):
+                return movesToState
+
+            # sucessors returns a set with (state, direction to sucessor, cost to move)
+            for sucessor in problem.getSuccessors(currentState):
+                if sucessor[0] not in stateSet:
+                    stack.push([sucessor[0], movesToState + [sucessor[1]]])
     
-    print('Solution not found')
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
+
+    queue = util.Queue()
+    stateSet = set()
+    queue.push([problem.getStartState(), list()])
+
+    while(not queue.isEmpty()):
+        queueItem = queue.pop()
+        currentState = queueItem[0]
+        movesToState = queueItem[1]
+
+        if currentState not in stateSet:
+
+            stateSet.add(currentState)
+
+            if(problem.isGoalState(currentState)):
+                return movesToState
+
+            # sucessors returns a set with (state, direction to sucessor, cost to move)
+            for sucessor in problem.getSuccessors(currentState):
+                if sucessor[0] not in stateSet:
+                    queue.push([sucessor[0], movesToState + [sucessor[1]]])
+
     util.raiseNotDefined()
 
 def uniformCostSearch(problem):
