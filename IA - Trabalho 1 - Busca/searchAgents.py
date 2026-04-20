@@ -382,13 +382,33 @@ def cornersHeuristic(state, problem):
     position, visited = state
     corners = problem.corners
 
-    unvisited = [corner for i, corner in enumerate(corners) if not visited[i]]
-
-    if not unvisited:
+    cornersUnvisited = []
+    for i in range(len(corners)):
+        if not visited[i]:
+            cornersUnvisited.append(corners[i])
+            
+    if not cornersUnvisited:
         return 0
 
-    # menor distância de Manhattan até algum canto não visitado
-    return min(abs(position[0] - x) + abs(position[1] - y) for x, y in unvisited)
+    totalDist = 0
+    currentPos = position
+    
+    while cornersUnvisited:
+
+        nextCorner = float('inf')
+        currentCorner = None
+
+        for corner in cornersUnvisited:
+            manhattanDistance = abs(currentPos[0] - corner[0]) + abs(currentPos[1] - corner[1])
+            if manhattanDistance < nextCorner:
+                nextCorner = manhattanDistance
+                currentCorner = corner
+
+        totalDist += nextCorner
+        currentPos = currentCorner
+        cornersUnvisited.remove(currentCorner)
+
+    return totalDist
 
 
 class AStarCornersAgent(SearchAgent):
