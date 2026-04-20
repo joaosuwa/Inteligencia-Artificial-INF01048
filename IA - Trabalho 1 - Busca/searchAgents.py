@@ -295,14 +295,17 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        visited = tuple(self.startingPosition == corner for corner in self.corners)
+        #cria (posição, boolean, boolean, boolean, boolean) pros 4 cantos
+        return (self.startingPosition, visited)
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        _, visited = state
+        return all(visited)
 
     def getSuccessors(self, state):
         """
@@ -316,6 +319,7 @@ class CornersProblem(search.SearchProblem):
         """
 
         successors = []
+        position, visited = state
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
@@ -325,7 +329,22 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
+            x, y = position
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
 
+            if not self.walls[nextx][nexty]:
+                next_position = (nextx, nexty)
+
+                visited_list = list(visited)
+
+                for i, corner in enumerate(self.corners):
+                    if next_position == corner:
+                        visited_list[i] = True
+
+                successors.append(
+                    ((next_position, tuple(visited_list)), action, 1)
+                )
         self._expanded += 1 # DO NOT CHANGE
         return successors
 
@@ -360,7 +379,17 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    position, visited = state
+    corners = problem.corners
+
+    unvisited = [corner for i, corner in enumerate(corners) if not visited[i]]
+
+    if not unvisited:
+        return 0
+
+    # menor distância de Manhattan até algum canto não visitado
+    return min(abs(position[0] - x) + abs(position[1] - y) for x, y in unvisited)
+
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
