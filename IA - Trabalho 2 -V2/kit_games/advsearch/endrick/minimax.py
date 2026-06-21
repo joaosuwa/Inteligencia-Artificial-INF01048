@@ -97,18 +97,6 @@ def _state_key(state):
     return (str(state.board), state.player)
 
 
-def _adaptive_time(state):
-    """Tempo limite por fase: abertura 3s, meio 4.0s, final 2s."""
-    board = state.board
-    total = board.num_pieces('B') + board.num_pieces('W')
-    if total <= 12:
-        return 3.0
-    elif total <= 48:
-        return 4.0
-    else:
-        return 2.0
-
-
 def _should_solve_endgame(state):
     """Ativa solver exaustivo se restam <= 12 casas vazias."""
     board = state.board
@@ -133,7 +121,7 @@ def minimax_move_id(state, max_depth: int, eval_func: Callable, time_limit: floa
         return moves[0]
 
     if time_limit is None:
-        time_limit = _adaptive_time(state)
+        time_limit = 4.0
 
     solve = _should_solve_endgame(state)
     max_search_depth = 40 if solve else (max_depth if max_depth > 0 else 40)

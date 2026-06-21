@@ -185,11 +185,7 @@ A heurística combina 8 termos com pesos que variam conforme a fase do jogo (5 f
 
 ### Critério de Parada
 
-O agente do torneio (`tournament_agent.py`) utiliza **aprofundamento iterativo com tempo adaptativo**:
-
-- **Abertura** (≤12 peças): 3.0s
-- **Meio-jogo** (13–48 peças): 4.0s
-- **Final** (>48 peças): 2.0s
+O agente do torneio (`tournament_agent.py`) utiliza 4 segundos com margem de 0.3 segundos.
 
 O limite rígido é `time_limit + 0.3s` para evitar desclassificação. A cada 50 nós, verifica-se o deadline. Se excedido, a busca atual é abortada e a melhor jogada da iteração anterior é retornada.
 
