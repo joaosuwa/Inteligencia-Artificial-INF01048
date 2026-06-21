@@ -193,13 +193,15 @@ Quando restam ≤12 espaços vazios, o solver de fim de jogo ativa profundidade 
 
 ### Resultado do Minitorneio
 
-Partidas entre as 3 heurísticas (ida e volta, com 12 partidas no total):
-
-| # | Agente | Pts | V | D | E | PF | PA | Saldo |
-|---|---|---|---|---|---|---|---|---|
-| 1 | Customizada (minimax+ID) | 15 | 5 | 1 | 0 | 259 | 125 | +134 |
-| 2 | Máscara posicional | 12 | 4 | 2 | 0 | 224 | 160 | +64 |
-| 3 | Contagem de peças | 9 | 3 | 3 | 0 | 195 | 189 | +6 |
+Partidas entre as 3 heurísticas
+| Partida | Placar |
+|---|---|
+| Customizada vs Máscara posicional | 52x12 |
+| Máscara posicional vs Customizada | 13x51 |
+| Customizada vs Contagem de peças | 52x12 |
+| Contagem de peças vs Customizada | 22x42 |
+| Máscara posicional vs Contagem de peças | 31x33 |
+| Contagem de peças vs Máscara posicional | 29x35 |
 
 A heurística customizada foi a mais bem-sucedida, vencendo todas as partidas contra contagem de peças e a maioria contra a máscara posicional.
 
