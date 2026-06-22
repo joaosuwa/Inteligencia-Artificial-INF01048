@@ -11,13 +11,12 @@ Nenhuma biblioteca adicional é necessária além da biblioteca padrão do Pytho
 
 ## Metodologia
 
-Durante o período de realização do trabalho, diversos agentes de IA foram consultados para sugerir e explicar melhorias no minimax e na heurística customizada inicial com o propósito de criar o melhor agente possível para o torneio. Além disso, nos baseamos em algoritmos feitos para jogar othello (IAGO feito por Rosenbloom em 1982 e LOGISTELLO feito por Michale Buro em 1997). Foram implementadas diversas soluções, baseadas em minimax e mcts, além de diferentes heurísticas e valores posicionais para o tabulairo. Após essas implementações, foi realizada uma série de competições entre 9 agentes no modelo de torneio suíço, nas quais os agentes baseados em minimax se sobressaíram. Desse modo, foram escolhidos 4 agentes, que foram mais uma vez refinados e testados um contra os outros até sr decidido o melhor, que acabou por ser uma combinação de diferentes heurísticas:
+Durante o período de realização do trabalho, diversos agentes de IA foram consultados para sugerir e explicar melhorias no minimax e na heurística customizada inicial com o propósito de criar o melhor agente possível para o torneio. Além disso, nos baseamos em algoritmos feitos para jogar othello (IAGO feito por Rosenbloom em 1982 e LOGISTELLO feito por Michale Buro em 1997) e alguns projetos de heurísticas para o jogo (https://kartikkukreja.wordpress.com/2013/03/30/heuristic-function-for-reversiothello/ e https://arxiv.org/abs/1406.1509), apesar da complexidade de algumas de suas implementações. Foram implementadas diversas soluções, baseadas em minimax e mcts, além de diferentes heurísticas e valores posicionais para o tabulairo. Após essas implementações, foi realizada uma série de competições entre 9 agentes no modelo de torneio suíço, nas quais os agentes baseados em minimax se sobressaíram. Desse modo, foram escolhidos 4 agentes, que foram mais uma vez refinados e testados um contra os outros até sr decidido o melhor, que acabou por ser uma combinação de diferentes heurísticas:
 
 
-  (1) Posicional (pos): máscara EVAL_TEMPLATE (como evaluate_mask).
-  (2) Mobilidade Ponderada (mob): jogadas quietas (não-frontier) valem
-      3x, jogadas ruidosas (frontier) valem 1x, jogadas do oponente sao
-      penalizadas em -2 cada.
+  (1) Posicional (pos): máscara EVAL_TEMPLATE diferente da fornecida originalmente. Utilizamos diferentes matrrizes e competimos entre elas para a melhor. Com o limite de tempo da época (4.0s), a matriz posicional vencedora também foi a única na qual seu agente empatava consigo mesmo.
+  (2) Mobilidade Ponderada (mob): jogadas quietas (não fronteiras) valem 3x, jogadas ruidosas (fronteiras) valem 1x, 
+      jogadas do oponente são penalizadas em -2 cada.
   (3) Fronteira (front): peças adjacentes a espacos vazios. Negativo
       no meio e final de jogo (pecas expostas para captura são ruins).
   (4) Estabilidade Total (stable): detecção iterativa de pecas que não
@@ -185,10 +184,8 @@ A heurística combina 8 termos com pesos que variam conforme a fase do jogo (5 f
 
 ### Critério de Parada
 
-O agente do torneio (`tournament_agent.py`) utiliza 4 segundos com margem de 0.3 segundos.
-
+O agente do torneio (`tournament_agent.py`) utiliza 4.5 segundos com margem de 0.3 segundos.
 O limite rígido é `time_limit + 0.3s` para evitar desclassificação. A cada 50 nós, verifica-se o deadline. Se excedido, a busca atual é abortada e a melhor jogada da iteração anterior é retornada.
-
 Quando restam ≤12 espaços vazios, o solver de fim de jogo ativa profundidade 40 (busca exaustiva até o final).
 
 ### Resultado do Minitorneio

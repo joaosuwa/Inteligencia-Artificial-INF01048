@@ -25,8 +25,8 @@ C_SQUARES = {(0, 1), (1, 0), (0, 6), (1, 7), (6, 0), (7, 1), (6, 7), (7, 6)}
 CORNERS = [(0, 0), (0, 7), (7, 0), (7, 7)]
 
 
+#Conta pecas próprias adjacentes a espaços vazios (fronteira). Importante para defesa e mobilidade. Quanto menos, melhor para o jogador, pior para o oponente.
 def _count_frontier(board, player):
-    """Conta pecas proprias adjacentes a espacos vazios (fronteira)."""
     f = 0
     tiles = board.tiles
     for y in range(8):
@@ -42,8 +42,8 @@ def _count_frontier(board, player):
     return f
 
 
+#Encontra pecas estaveis nas bordas por BFS a partir de cada quina.
 def _edge_stable(board, player):
-    """Encontra pecas estaveis nas bordas por BFS a partir de cada quina."""
     stable = set()
     tiles = board.tiles
     for cx, cy in CORNERS:
@@ -64,8 +64,9 @@ def _edge_stable(board, player):
     return stable
 
 
+#Verifica se há peça estável em uma das direcoes do eixo. 
+#Se sim, a peça é estável nessa direção. Se chegar em vazio ou peça adversária, não é estável.
 def _is_stable_in_line(board, x, y, dx, dy, player, stable_set):
-    """Verifica se ha peca estavel em uma das direcoes do eixo."""
     nx, ny = x + dx, y + dy
     tiles = board.tiles
     while 0 <= nx < 8 and 0 <= ny < 8:
@@ -78,9 +79,9 @@ def _is_stable_in_line(board, x, y, dx, dy, player, stable_set):
         ny += dy
     return True
 
-
+#Conta todas as pecas estáveis (borda + interior por propagacao nos 4 eixos). 
+# Calcula a estabilidade completa, mas só é chamado se há peças suficientes (>=8) para evitar custo desnecessário no início.    
 def _count_stable_full(board, player):
-    """Conta todas as pecas estaveis (borda + interior por propagacao nos 4 eixos)."""
     edge_stable = _edge_stable(board, player)
     stable = set(edge_stable)
     changed = True
@@ -104,8 +105,8 @@ def _count_stable_full(board, player):
     return len(stable)
 
 
+#Conta espacos vazios adjacentes a pecas do oponente (mobilidade futura). Quanto mais, melhor para o jogador, pior para o oponente.
 def _potential_mobility(board, player):
-    """Conta espacos vazios adjacentes a pecas do oponente (mobilidade futura)."""
     opponent = Board.opponent(player)
     squares = set()
     tiles = board.tiles
@@ -121,8 +122,10 @@ def _potential_mobility(board, player):
     return len(squares)
 
 
+#Avalia ameaca a quinas vazias baseada na ocupacao das casas X adjacentes. 
+#Se o oponente tem peca em X, penaliza fortemente (pode perder a quina). 
+#Se nos temos, recompensa (podemos tomar a quina).
 def _corner_threat(board, player):
-    """Avalia ameaca a quinas vazias baseada na ocupacao das casas X adjacentes."""
     opponent = Board.opponent(player)
     threat = 0
     tiles = board.tiles
@@ -139,8 +142,8 @@ def _corner_threat(board, player):
     return threat
 
 
+#Mobilidade ponderada: jogadas quietas (não fronteira) valem 3x, ruidosas 1x, oponente penalizado.
 def _weighted_mobility(board, player, legal_moves_player, legal_moves_opponent):
-    """Mobilidade ponderada: jogadas quietas (nao-frontier) valem 3x, ruidosas 1x, oponente penalizado."""
     if not legal_moves_player:
         return -len(legal_moves_opponent)
     quiet = 0
@@ -161,12 +164,10 @@ def _weighted_mobility(board, player, legal_moves_player, legal_moves_opponent):
     return quiet * 3 + noisy - len(legal_moves_opponent) * 2
 
 
+# Heuristica customizada com 8 termos e pesos por fase (5 fases).
+# Combina: posicional, mobilidade ponderada, fronteira, estabilidade,
+# mobilidade potencial, ameaca de quina, paridade e penalidades X/C.
 def evaluate_custom(state, player):
-    """Heuristica customizada com 8 termos e pesos por fase (5 fases).
-
-    Combina: posicional, mobilidade ponderada, fronteira, estabilidade,
-    mobilidade potencial, ameaca de quina, paridade e penalidades X/C.
-    """
     board = state.board
     opponent = Board.opponent(player)
 
@@ -174,7 +175,7 @@ def evaluate_custom(state, player):
     o_pieces = board.num_pieces(opponent)
     total = p_pieces + o_pieces
 
-    # 1. Termo posicional (mascara)
+    # Termo posicional (mascara)
     pos = 0
     tiles = board.tiles
     for y in range(8):
@@ -190,21 +191,21 @@ def evaluate_custom(state, player):
     legal_p = list(board.legal_moves(player))
     legal_o = list(board.legal_moves(opponent))
 
-    # 2. Mobilidade ponderada
+    #Mobilidade ponderada
     mob = _weighted_mobility(board, player, legal_p, legal_o)
-    # 3. Fronteira (pecas expostas)
+    #Fronteira (pecas expostas)
     front = _count_frontier(board, player) - _count_frontier(board, opponent)
-    # 4. Contagem de pecas
+    # Contagem de pecas
     piece = p_pieces - o_pieces
 
-    # 5. Estabilidade total (calculada apenas se ha pecas suficientes)
+    # Estabilidade total (calculada apenas se ha pecas suficientes)
     stable = 0
     if total >= 8:
         stable = _count_stable_full(board, player) - _count_stable_full(board, opponent)
 
-    # 6. Mobilidade potencial
+    # Mobilidade potencial
     pot_mob = _potential_mobility(board, player) - _potential_mobility(board, opponent)
-    # 7. Ameaca de quina
+    # Ameaça de quina
     threat = _corner_threat(board, player)
 
     # 8. Paridade (nos ultimos 24 espacos)
